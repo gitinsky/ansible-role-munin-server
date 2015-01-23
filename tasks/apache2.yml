@@ -1,0 +1,17 @@
+- name: install apache2-mpm-prefork
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+      - apache2-mpm-prefork
+
+- name: munin apache.conf
+  template:
+      src=apache.conf
+      dest=/etc/munin/apache.conf
+  notify: reload apache
+
+- name: create apache2/conf.d
+  file: state=directory dest=/etc/apache2/conf.d
+
+- name: create munin apache.conf
+  file: state=link src=/etc/munin/apache.conf dest=/etc/apache2/conf.d/munin
+  notify: reload apache

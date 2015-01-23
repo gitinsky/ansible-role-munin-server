@@ -1,0 +1,5 @@
+---
+munin_http_server: apache2
+# munin_http_server: nginx
+nginx_server_name: "munin.{{ ansible_domain }}"
+munin_use_inventory_hostname: False

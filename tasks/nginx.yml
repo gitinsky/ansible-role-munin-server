@@ -1,0 +1,9 @@
+- name: munin nginx conf
+  template:
+      src=nginx.conf
+      dest=/etc/nginx/sites-available/munin.{{ ansible_domain }}
+  notify: reload nginx
+
+- name: create cake2 link
+  file: state=link src=../sites-available/munin.{{ ansible_domain }} dest=/etc/nginx/sites-enabled/munin.{{ ansible_domain }}
+  notify: reload nginx

@@ -1,0 +1,48 @@
+---
+- name: check port 80 and change default server if required
+  shell: netstat -plutnN|grep ":80\s"|cut -d '/' -f 2
+  register: munin_http_server_80
+  changed_when: "munin_http_server not in munin_http_server_80.stdout" 
+
+- name: change server to nginx
+  set_fact:
+      munin_http_server: nginx
+  when: "'nginx' in munin_http_server_80.stdout"
+
+- name: change server to apache2
+  set_fact:
+      munin_http_server: apache2
+  when: "'apache2' in munin_http_server_80.stdout"
+
+- name: install munin
+  apt: name={{ item }} state=present
+  #update_cache=yes
+  with_items:
+      - munin
+
+- name: munin.conf
+  template:
+      src=munin.conf
+      dest=/etc/munin/munin.conf
+  notify: reload munin
+
+- include: apache2.yml
+  when: munin_http_server == "apache2"
+
+- include: nginx.yml
+  when: munin_http_server == "nginx"
+
+# - name: check if client configurations changed
+#   set_fact:
+#       munin_server_should_be_reloaded: "{{ munin_client_configuration_changed }} {{ hostvars[item]['munin_client_configuration_changed'] }}"
+#   with_items: groups[munin_group_search_prefix + '-munin-client']
+#   # changed_when: "'yes' in munin_server_should_be_reloaded"
+#
+# - name: echo client facts on server
+#   command: echo {{ munin_server_should_be_reloaded }} | tee /tmp/testme
+  
+# {% for host in hostvars[groups[munin_group_search_prefix + '-munin-client']][0] %}
+# {% if hostvars[host]['munin_client_configuration_changed'] == 'yes' %}
+# {% return true %}
+# {% endif%}
+# {% endfor %}
