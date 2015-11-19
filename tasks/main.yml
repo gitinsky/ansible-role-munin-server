@@ -19,11 +19,20 @@
   #update_cache=yes
   with_items:
       - munin
+  when: ansible_os_family  == "Debian"
+
+- name: install munin
+  yum: name={{ item }} state=present
+  #update_cache=yes
+  with_items:
+      - munin
+  when: ansible_os_family  == "RedHat"
 
 - name: munin.conf
   template:
       src=munin.conf
       dest=/etc/munin/munin.conf
+      backup=yes
   notify: reload munin
 
 - include: apache2.yml

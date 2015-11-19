@@ -2,8 +2,19 @@
   template:
       src=nginx.conf
       dest=/etc/nginx/sites-available/munin.{{ ansible_domain }}
+      backup=yes
   notify: reload nginx
+  when: ansible_os_family  == "Debian"
 
-- name: create cake2 link
+- name: munin nginx conf
+  template:
+      src=nginx-redhat.conf
+      dest=/etc/nginx/conf.d/munin.{{ ansible_domain }}.conf
+      backup=yes
+  notify: reload nginx
+  when: ansible_os_family  == "RedHat"
+
+- name: create munin link
   file: state=link src=../sites-available/munin.{{ ansible_domain }} dest=/etc/nginx/sites-enabled/munin.{{ ansible_domain }}
   notify: reload nginx
+  when: ansible_os_family  == "Debian"
