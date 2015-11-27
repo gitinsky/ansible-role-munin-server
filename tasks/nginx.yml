@@ -18,3 +18,7 @@
   file: state=link src=../sites-available/munin.{{ ansible_domain }} dest=/etc/nginx/sites-enabled/munin.{{ ansible_domain }}
   notify: reload nginx
   when: ansible_os_family  == "Debian"
+
+- name: install spawn-fcgi
+  yum: name=spawn-fcgi state=present
+  when: ansible_os_family  == "RedHat"
